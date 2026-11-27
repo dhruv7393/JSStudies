@@ -1,0 +1,19 @@
+{
+  "name": "js-ref",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A personal JavaScript reference with quiz cards.",
+  "scripts": {
+    "dev": "vite",
+    "check": "node scripts/check-data.mjs",
+    "build": "npm run check && vite build",
+    "preview": "vite preview"
+  },
+  "engines": {
+    "node": ">=20.19"
+  },
+  "devDependencies": {
+    "vite": "^8.4.0"
+  }
+}
