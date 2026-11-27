@@ -1,13 +1,6 @@
-import { topics, getTopic, KINDS, GROUPS } from '../data/index.js';
+import { topics, getTopic, GROUPS } from '../data/index.js';
 import { esc, prose } from '../lib/html.js';
 import { icons } from '../lib/icons.js';
-
-const FILTERS = [
-  { id: 'all', label: 'All' },
-  { id: 'mutates', label: 'Mutates' },
-  { id: 'copy', label: 'New array' },
-  { id: 'value', label: 'Returns value' },
-];
 
 const GROUP_BADGE = {
   constructor: 'Constructor',
@@ -23,11 +16,14 @@ const groupLabel = (id) => GROUPS.find((g) => g.id === id)?.label ?? id;
 const matchFilter = (m, f) => f === 'all' || m.kind === f;
 const matchQuery = (m, q) =>
   !q || [m.name, m.one, m.copy, m.what, groupLabel(m.group)].join(' ').toLowerCase().includes(q);
-const badge = (kind) => `<span class="badge badge--${kind}">${esc(KINDS[kind].label)}</span>`;
 const narrow = () => window.matchMedia('(max-width: 759px)').matches;
 
 export function renderReference(root, route) {
   const topic = getTopic(route.topic);
+  const KINDS = topic.kinds;
+  const FILTERS = [{ id: 'all', label: 'All' }, ...Object.entries(KINDS).map(([id, k]) => ({ id, label: k.label }))];
+  const badge = (kind) => `<span class="badge badge--${kind}">${esc(KINDS[kind].label)}</span>`;
+  const topicGroups = GROUPS.filter((g) => topic.methods.some((m) => m.group === g.id));
   const ui = (uiState[topic.id] ??= { query: '', filter: 'all' });
   let selectedId = null;
   let scrollOnSelect = false;
@@ -52,11 +48,11 @@ export function renderReference(root, route) {
       </section>
       <section class="side-block panel copy-box" aria-labelledby="copy-label">
         <h2 id="copy-label">Shallow vs deep copy</h2>
-        <p>A shallow copy is a new outer array holding the same inner objects. A deep copy duplicates the inner objects too.</p>
+        <p>${esc(topic.copyBox.intro)}</p>
         <span class="copy-box__kind">Shallow</span>
-        <code class="copy-box__code">[...arr]  arr.slice()  Array.from(arr)</code>
+        <code class="copy-box__code">${esc(topic.copyBox.shallow)}</code>
         <span class="copy-box__kind">Deep</span>
-        <code class="copy-box__code">structuredClone(arr)</code>
+        <code class="copy-box__code">${esc(topic.copyBox.deep)}</code>
         <p class="copy-box__note">${prose('`structuredClone()` throws a `DataCloneError` if the data contains functions.')}</p>
       </section>
     </aside>
@@ -105,7 +101,7 @@ export function renderReference(root, route) {
     const items = visible();
     emptyEl.hidden = items.length > 0;
 
-    groupsEl.innerHTML = GROUPS.map((g) => {
+    groupsEl.innerHTML = topicGroups.map((g) => {
       const inGroup = items.filter((m) => m.group === g.id);
       if (!inGroup.length) return '';
       return `<section class="method-group" aria-labelledby="group-${g.id}">
@@ -114,7 +110,7 @@ export function renderReference(root, route) {
       </section>`;
     }).join('');
 
-    sectionsEl.innerHTML = GROUPS.map((g) => {
+    sectionsEl.innerHTML = topicGroups.map((g) => {
       const count = items.filter((m) => m.group === g.id).length;
       return `<li><button type="button" class="topic topic--button" data-jump="${g.id}"${count ? '' : ' disabled'}>
         <span>${esc(g.label)}</span><span class="topic__meta">${count}</span></button></li>`;
@@ -156,7 +152,7 @@ export function renderReference(root, route) {
         <div class="fact"><dt>Returns</dt><dd>${prose(m.returns)}</dd></div>
         <div class="fact"><dt>Changes original?</dt><dd class="${changesClass}">${esc(m.changes)}</dd></div>
         <div class="fact"><dt>Copy</dt><dd>${esc(m.copy)}</dd></div>
-        <div class="fact"><dt>Empty slots</dt><dd>${prose(m.holes)}</dd></div>
+        <div class="fact"><dt>${esc(topic.extraFact.label)}</dt><dd>${prose(m[topic.extraFact.field])}</dd></div>
       </dl>
 
       ${m.instead ? `<p class="instead"><strong>Non-mutating alternative:</strong> ${prose(m.instead)}</p>` : ''}

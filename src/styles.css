@@ -666,6 +666,7 @@ a.topic:hover {
 .method__name {
   font-size: 14px;
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 .method__one {
   font-size: 13px;

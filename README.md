@@ -21,7 +21,8 @@ src/main.js           hash router: #/ref/<topic>/<method>, #/quiz/<topic>
 src/views/reference.js  reference screen (search, filters, detail)
 src/views/quiz.js       quiz screen (flip + multiple-choice cards)
 src/data/index.js     list of topics and tag definitions
-src/data/array.js     Array methods and quiz cards
+src/data/array.js     Array entries and quiz cards
+src/data/object.js    Object entries and quiz cards
 src/lib/              small helpers (escaping, storage, icons)
 src/styles.css        all styles, light and dark
 render.yaml           Render deploy config
@@ -29,7 +30,10 @@ render.yaml           Render deploy config
 
 ## Accuracy check
 
-The Array section covers all 48 entries on MDN's Array page (constructor, static methods and properties, instance properties and methods). Each entry was checked against its MDN page.
+Each topic covers every entry on its MDN page (constructor, static methods and properties, instance properties and methods), and each entry was checked against its own MDN page:
+
+- **Array**: 48 entries, 32 quiz cards
+- **Object**: 36 entries, 20 quiz cards
 
 ```bash
 npm run check
@@ -39,9 +43,9 @@ This runs every example in Node. A line like `a.at(-1); // 'z'` must really prod
 
 ## Add a new topic (e.g. Date)
 
-1. Copy `src/data/array.js` to `src/data/date.js` and replace `methods` and `cards`. Keep the same fields.
-2. In `src/data/index.js`, import it and replace the `{ id: 'date', ..., soon: true }` entry with a full entry (see the Array one).
-3. Extend `scripts/check-data.mjs` to check the new file.
+1. Copy `src/data/object.js` to `src/data/date.js` and replace `methods` and `cards`. Keep the same fields.
+2. In `src/data/index.js`, import it and replace the `{ id: 'date', ..., soon: true }` entry with a full entry. Each topic sets its own tag labels (`kinds`), its fourth fact (`extraFact`, e.g. "Empty slots" for Array, "Which properties" for Object) and its copy box.
+3. Add it to `TOPICS` in `scripts/check-data.mjs` with MDN's list of entries, then run `npm run check`.
 
 In prose fields (`what`, `details`, `watch`, `explain`), wrap code in backticks to show it as inline code.
 
